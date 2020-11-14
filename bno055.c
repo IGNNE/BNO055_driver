@@ -36,6 +36,9 @@
 *
 */
 
+// fix for compiling with px4
+#pragma GCC diagnostic ignored "-Wlogical-op"
+
 /*********************************************************/
 /*              INCLUDES    */
 /*******************************************************/

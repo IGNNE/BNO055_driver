@@ -42,6 +42,11 @@
 #ifndef __BNO055_H__
 #define __BNO055_H__
 
+// changed to make functions callable from C++ wrapper
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /****************************************************************/
 /**\name    DATA TYPES INCLUDES     */
 /************************************************************/
@@ -283,17 +288,20 @@ typedef unsigned long int u64; /**< used for unsigned 64bit */
 /***************************************************************/
 /**\name    BUS READ AND WRITE FUNCTIONS           */
 /***************************************************************/
+
+// changed to allow C++ pointer-to-members (via small trampoline): added first parameter to pass this
+
 #define BNO055_WR_FUNC_PTR       s8 (*bus_write) \
-        (u8, u8, u8 *, u8)
+        (void*, u8, u8, u8 *, u8)
 
 #define BNO055_BUS_WRITE_FUNC(dev_addr, reg_addr, reg_data, wr_len) \
-    bus_write(dev_addr, reg_addr, reg_data, wr_len)
+    bus_write(p_bno055->i2c_calling_obj, dev_addr, reg_addr, reg_data, wr_len)
 
 #define BNO055_RD_FUNC_PTR       s8 \
-    (*bus_read)(u8, u8, u8 *, u8)
+    (*bus_read)(void*, u8, u8, u8 *, u8)
 
 #define BNO055_BUS_READ_FUNC(dev_addr, reg_addr, reg_data, r_len) \
-    bus_read(dev_addr, reg_addr, reg_data, r_len)
+    bus_read(p_bno055->i2c_calling_obj, dev_addr, reg_addr, reg_data, r_len)
 
 #define BNO055_DELAY_RETURN_TYPE void
 
@@ -507,6 +515,7 @@ typedef unsigned long int u64; /**< used for unsigned 64bit */
 
 /*!
  *  @brief bno055 struct
+ * @note added paramter to use c++ pointer-to-member
  */
 struct bno055_t
 {
@@ -520,6 +529,7 @@ struct bno055_t
     u8 dev_addr; /**< i2c device address of bno055 */
     BNO055_WR_FUNC_PTR; /**< bus write function pointer */
     BNO055_RD_FUNC_PTR; /**<bus read function pointer */
+    void * i2c_calling_obj; /**<added pointer that stores the c++ wrapper instance */
     void (*delay_msec)(BNO055_MDELAY_DATA_TYPE); /**< delay function pointer */
 };
 
@@ -8135,4 +8145,8 @@ BNO055_RETURN_FUNCTION_TYPE bno055_get_gyro_any_motion_awake_durn(u8 *gyro_awake
  */
 BNO055_RETURN_FUNCTION_TYPE bno055_set_gyro_any_motion_awake_durn(u8 gyro_awake_durn_u8);
 
+#endif
+
+#ifdef __cplusplus
+}
 #endif
